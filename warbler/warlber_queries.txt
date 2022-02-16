@@ -1,0 +1,114 @@
+﻿Sql queries for warbler models
+
+
+Adding a user
+
+
+u = User(
+           email="test@test.com",
+           username="testuser",
+           password="HASHED_PASSWORD"
+       )
+
+
+       db.session.add(u)
+       db.session.commit()
+
+
+Sql query generated:
+INSERT INTO users (email, username, image_url, header_image_url, bio, location, password) VALUES (%(email)s, %(username)s, %(image_url)s, %(header_image_url)s, %(bio)s, %(location)s, %(password)s) RETURNING users.id
+
+
+INFO sqlalchemy.engine.base.Engine {'email': 'test@test.com', 'username': 'testuser', 'image_url': '/static/images/default-pic.png', 'header_image_url': '/static/images/warbler-hero.jpg', 'bio': None, 'location': None, 'password': 'HASHED_PASSWORD'}
+
+
+2022-02-15 19:38:40,423 INFO sqlalchemy.engine.base.Engine COMMIT
+
+
+
+
+u.messages
+
+
+SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.image_url AS users_image_url, users.header_image_url AS users_header_image_url, users.bio AS users_bio, users.location AS users_location, users.password AS users_password 
+FROM users 
+WHERE users.id = %(param_1)s
+2022-02-15 19:54:00,021 INFO sqlalchemy.engine.base.Engine {'param_1': 3}
+2022-02-15 19:54:00,023 INFO sqlalchemy.engine.base.Engine SELECT messages.id AS messages_id, messages.text AS messages_text, messages.timestamp AS messages_timestamp, messages.user_id AS messages_user_id 
+FROM messages 
+WHERE %(param_1)s = messages.user_id
+2022-02-15 19:54:00,023 INFO sqlalchemy.engine.base.Engine {'param_1': 3}
+
+
+
+
+
+
+
+
+self.u1.following.append(self.u2)
+
+
+SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.image_url AS users_image_url, users.header_image_url AS users_header_image_url, users.bio AS users_bio, users.location AS users_location, users.password AS users_password 
+FROM users, follows 
+WHERE follows.user_following_id = %(param_1)s AND follows.user_being_followed_id = users.id
+2022-02-15 22:02:55,366 INFO sqlalchemy.engine.base.Engine {'param_1': 1111}
+2022-02-15 22:02:55,368 INFO sqlalchemy.engine.base.Engine INSERT INTO follows (user_being_followed_id, user_following_id) VALUES (%(user_being_followed_id)s, %(user_following_id)s)
+2022-02-15 22:02:55,369 INFO sqlalchemy.engine.base.Engine {'user_being_followed_id': 2222, 'user_following_id': 1111}
+2022-02-15 22:02:55,370 INFO sqlalchemy.engine.base.Engine COMMIT
+.
+Self.u2.followers ( Gives user info about followers of u2 which is u1
+
+
+SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.image_url AS users_image_url, users.header_image_url AS users_header_image_url, users.bio AS users_bio, users.location AS users_location, users.password AS users_password 
+FROM users, follows 
+WHERE follows.user_being_followed_id = %(param_1)s AND follows.user_following_id = users.id
+2022-02-15 22:38:38,302 INFO sqlalchemy.engine.base.Engine {'param_1': 2222}
+
+
+print(f"Val: {self.u2.followers}")
+
+
+Val: [<User #1111: test1, email1@email.com>]
+
+
+
+
+
+
+
+
+
+
+
+
+u.follows
+2022-02-15 19:54:00,025 INFO sqlalchemy.engine.base.Engine SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.image_url AS users_image_url, users.header_image_url AS users_header_image_url, users.bio AS users_bio, users.location AS users_location, users.password AS users_password 
+FROM users, follows 
+WHERE follows.user_being_followed_id = %(param_1)s AND follows.user_following_id = users.id
+2022-02-15 19:54:00,025 INFO sqlalchemy.engine.base.Engine {'param_1': 3}
+
+
+
+
+u.likes.append(m1)
+
+
+
+
+SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.image_url AS users_image_url, users.header_image_url AS users_header_image_url, users.bio AS users_bio, users.location AS users_location, users.password AS users_password 
+FROM users 
+WHERE users.id = %(param_1)s
+2022-02-16 10:12:20,406 INFO sqlalchemy.engine.base.Engine {'param_1': 888}
+2022-02-16 10:12:20,408 INFO sqlalchemy.engine.base.Engine SELECT messages.id AS messages_id, messages.text AS messages_text, messages.timestamp AS messages_timestamp, messages.user_id AS messages_user_id 
+FROM messages, likes 
+WHERE %(param_1)s = likes.user_id AND messages.id = likes.message_id
+2022-02-16 10:12:20,408 INFO sqlalchemy.engine.base.Engine {'param_1': 888}
+2022-02-16 10:12:20,411 INFO sqlalchemy.engine.base.Engine SELECT messages.id AS messages_id, messages.text AS messages_text, messages.timestamp AS messages_timestamp, messages.user_id AS messages_user_id 
+FROM messages 
+WHERE messages.id = %(param_1)s
+2022-02-16 10:12:20,411 INFO sqlalchemy.engine.base.Engine {'param_1': 1}
+2022-02-16 10:12:20,412 INFO sqlalchemy.engine.base.Engine INSERT INTO likes (user_id, message_id) VALUES (%(user_id)s, %(message_id)s) RETURNING likes.id
+2022-02-16 10:12:20,412 INFO sqlalchemy.engine.base.Engine {'user_id': 888, 'message_id': 1}
+2022-02-16 10:12:20,413 INFO sqlalchemy.engine.base.Engine COMMIT
+.
